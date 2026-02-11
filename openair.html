@@ -1,0 +1,2623 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corso R, RStudio & openair - 4 ore</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .duration-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 25px;
+            margin-top: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .main-nav {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+            position: sticky;
+            top: 0;
+            background: rgba(26, 26, 46, 0.95);
+            padding: 15px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+
+        .nav-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, #4facfe, #00f2fe, #43e97b, #38f9d7);
+            border-radius: 2px;
+        }
+
+        .module {
+            position: relative;
+            margin-bottom: 40px;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .module:nth-child(1) { animation-delay: 0.1s; }
+        .module:nth-child(2) { animation-delay: 0.2s; }
+        .module:nth-child(3) { animation-delay: 0.3s; }
+        .module:nth-child(4) { animation-delay: 0.4s; }
+        .module:nth-child(5) { animation-delay: 0.5s; }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .module-content {
+            width: 45%;
+            padding: 25px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .module-content:hover {
+            transform: scale(1.02);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border-color: rgba(79, 172, 254, 0.5);
+        }
+
+        .module:nth-child(odd) .module-content {
+            margin-left: 5%;
+        }
+
+        .module:nth-child(even) .module-content {
+            margin-left: 50%;
+        }
+
+        .time-badge {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            z-index: 10;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .module-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .icon-intro { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .icon-basics { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+        .icon-data { background: linear-gradient(135deg, #fa709a, #fee140); }
+        .icon-openair { background: linear-gradient(135deg, #a8edea, #fed6e3); }
+        .icon-practice { background: linear-gradient(135deg, #ff9a9e, #fecfef); }
+
+        .module-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .module-duration {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            margin-top: 3px;
+        }
+
+        .topics-list {
+            list-style: none;
+            margin-top: 15px;
+        }
+
+        .topics-list li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .topics-list li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: #4facfe;
+        }
+
+        .expandable-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+        }
+
+        .module-content.expanded .expandable-content {
+            max-height: 5000px;
+        }
+
+        .code-example {
+            background: #1e1e3f;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            border-left: 4px solid #4facfe;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .code-example .comment { color: #6a9955; }
+        .code-example .function { color: #dcdcaa; }
+        .code-example .string { color: #ce9178; }
+        .code-example .keyword { color: #569cd6; }
+        .code-example .number { color: #b5cea8; }
+        .code-example .operator { color: #d4d4d4; }
+
+        .tip-box {
+            background: linear-gradient(135deg, rgba(67, 233, 123, 0.1), rgba(56, 249, 215, 0.1));
+            border-left: 4px solid #43e97b;
+            padding: 15px;
+            border-radius: 0 10px 10px 0;
+            margin-top: 15px;
+        }
+
+        .tip-box::before {
+            content: '💡 Tip: ';
+            font-weight: bold;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, rgba(250, 112, 154, 0.1), rgba(254, 225, 64, 0.1));
+            border-left: 4px solid #fa709a;
+            padding: 15px;
+            border-radius: 0 10px 10px 0;
+            margin-top: 15px;
+        }
+
+        .warning-box::before {
+            content: '⚠️ Attenzione: ';
+            font-weight: bold;
+        }
+
+        .example-section {
+            background: rgba(79, 172, 254, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid rgba(79, 172, 254, 0.3);
+        }
+
+        .example-section h4 {
+            color: #4facfe;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .definitions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .definition-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .definition-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(79, 172, 254, 0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .definition-term {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #4facfe;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .definition-text {
+            opacity: 0.9;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .definition-example {
+            background: #1e1e3f;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+
+        .category-title {
+            font-size: 1.5rem;
+            margin: 40px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(79, 172, 254, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .category-title:first-child {
+            margin-top: 0;
+        }
+
+        .progress-section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 40px 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .progress-title {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+        }
+
+        .progress-bar-container {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+
+        .progress-segment {
+            flex: 1;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            flex-direction: column;
+        }
+
+        .progress-segment:hover {
+            transform: scaleY(1.1);
+        }
+
+        .seg-1 { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .seg-2 { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+        .seg-3 { background: linear-gradient(135deg, #fa709a, #fee140); }
+        .seg-4 { background: linear-gradient(135deg, #a8edea, #fed6e3); color: #333; }
+        .seg-5 { background: linear-gradient(135deg, #ff9a9e, #fecfef); color: #333; }
+
+        .workflow-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .workflow-step {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            width: 140px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .workflow-step:hover {
+            transform: scale(1.1);
+            background: rgba(255,255,255,0.1);
+        }
+
+        .workflow-step::after {
+            content: '→';
+            position: absolute;
+            right: -25px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5rem;
+            color: #4facfe;
+        }
+
+        .workflow-step:last-child::after {
+            display: none;
+        }
+
+        .workflow-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .skill-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .skill-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.1);
+        }
+
+        .skill-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .skill-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .skill-desc {
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+
+        .resources-section {
+            background: linear-gradient(135deg, rgba(79, 172, 254, 0.1), rgba(0, 242, 254, 0.1));
+            border-radius: 20px;
+            padding: 30px;
+            margin: 40px 0;
+        }
+
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .resource-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .resource-card:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .resource-card h4 {
+            margin-bottom: 10px;
+            color: #4facfe;
+        }
+
+        .resource-card code {
+            background: rgba(0,0,0,0.3);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .checklist {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 40px 0;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .checklist-item:hover {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+        }
+
+        .checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #4facfe;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .checklist-item.checked .checkbox {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+        }
+
+        .checklist-item.checked .checkbox::after {
+            content: '✓';
+            color: white;
+            font-weight: bold;
+        }
+
+        .checklist-item.checked .item-text {
+            text-decoration: line-through;
+            opacity: 0.5;
+        }
+
+        .reference-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .reference-table th {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .reference-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .reference-table tr:hover td {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .reference-table code {
+            background: rgba(0,0,0,0.3);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        .search-box {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 15px 20px 15px 50px;
+            border-radius: 25px;
+            border: 2px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05);
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            border-color: #4facfe;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .search-box::before {
+            content: '🔍';
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+        }
+
+        .search-box input::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+
+        @media (max-width: 768px) {
+            .timeline::before {
+                left: 20px;
+            }
+
+            .module-content {
+                width: 85% !important;
+                margin-left: 50px !important;
+            }
+
+            .time-badge {
+                left: 20px;
+                transform: none;
+            }
+
+            .workflow-step {
+                width: 100%;
+            }
+
+            .workflow-step::after {
+                content: '↓';
+                right: 50%;
+                top: auto;
+                bottom: -25px;
+                transform: translateX(50%);
+            }
+
+            .definitions-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .main-nav {
+                gap: 5px;
+            }
+
+            .nav-btn {
+                padding: 10px 15px;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>📊 R, RStudio & openair</h1>
+        <p class="subtitle">Corso completo per l'analisi della qualità dell'aria</p>
+        <div class="duration-badge">⏱️ Durata totale: 4 ore</div>
+    </header>
+
+    <div class="container">
+        <!-- Main Navigation -->
+        <nav class="main-nav">
+            <button class="nav-btn active" onclick="showPage('overview')">📋 Panoramica</button>
+            <button class="nav-btn" onclick="showPage('modules')">📚 Moduli</button>
+            <button class="nav-btn" onclick="showPage('definitions')">📖 Definizioni</button>
+            <button class="nav-btn" onclick="showPage('examples')">💻 Esempi</button>
+            <button class="nav-btn" onclick="showPage('resources')">🔗 Risorse</button>
+        </nav>
+
+        <!-- PAGE: Overview -->
+        <div id="overview" class="page active">
+            <section class="progress-section">
+                <h2 class="progress-title">📈 Struttura del Corso</h2>
+                <div class="progress-bar-container">
+                    <div class="progress-segment seg-1" onclick="showPage('modules')">
+                        <span>Intro</span>
+                        <span>30 min</span>
+                    </div>
+                    <div class="progress-segment seg-2" onclick="showPage('modules')">
+                        <span>Basi R</span>
+                        <span>45 min</span>
+                    </div>
+                    <div class="progress-segment seg-3" onclick="showPage('modules')">
+                        <span>Dati</span>
+                        <span>60 min</span>
+                    </div>
+                    <div class="progress-segment seg-4" onclick="showPage('modules')">
+                        <span>openair</span>
+                        <span>60 min</span>
+                    </div>
+                    <div class="progress-segment seg-5" onclick="showPage('modules')">
+                        <span>Pratica</span>
+                        <span>45 min</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="workflow-diagram">
+                <div class="workflow-step">
+                    <div class="workflow-icon">📥</div>
+                    <div>Importa</div>
+                </div>
+                <div class="workflow-step">
+                    <div class="workflow-icon">🧹</div>
+                    <div>Pulisci</div>
+                </div>
+                <div class="workflow-step">
+                    <div class="workflow-icon">🔄</div>
+                    <div>Trasforma</div>
+                </div>
+                <div class="workflow-step">
+                    <div class="workflow-icon">��</div>
+                    <div>Analizza</div>
+                </div>
+                <div class="workflow-step">
+                    <div class="workflow-icon">📈</div>
+                    <div>Visualizza</div>
+                </div>
+            </section>
+
+            <section>
+                <h2 style="text-align: center; margin: 40px 0 20px;">🎯 Competenze Acquisite</h2>
+                <div class="skills-grid">
+                    <div class="skill-card">
+                        <div class="skill-icon">💻</div>
+                        <div class="skill-name">RStudio</div>
+                        <div class="skill-desc">Navigare l'IDE e gestire progetti</div>
+                    </div>
+                    <div class="skill-card">
+                        <div class="skill-icon">📊</div>
+                        <div class="skill-name">Data Wrangling</div>
+                        <div class="skill-desc">Importare e pulire dati</div>
+                    </div>
+                    <div class="skill-card">
+                        <div class="skill-icon">🌬️</div>
+                        <div class="skill-name">openair</div>
+                        <div class="skill-desc">Analisi qualità dell'aria</div>
+                    </div>
+                    <div class="skill-card">
+                        <div class="skill-icon">📈</div>
+                        <div class="skill-name">Visualizzazione</div>
+                        <div class="skill-desc">Grafici professionali</div>
+                    </div>
+                    <div class="skill-card">
+                        <div class="skill-icon">🔄</div>
+                        <div class="skill-name">Workflow</div>
+                        <div class="skill-desc">Processo completo di analisi</div>
+                    </div>
+                    <div class="skill-card">
+                        <div class="skill-icon">📝</div>
+                        <div class="skill-name">Report</div>
+                        <div class="skill-desc">Esportare risultati</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="checklist">
+                <h2 style="text-align: center; margin-bottom: 20px;">✅ Checklist Pre-Corso</h2>
+                <div class="checklist-item" onclick="toggleCheck(this)">
+                    <div class="checkbox"></div>
+                    <span class="item-text">R installato (versione ≥ 4.0) - <a href="https://cran.r-project.org/" style="color: #4facfe;">cran.r-project.org</a></span>
+                </div>
+                <div class="checklist-item" onclick="toggleCheck(this)">
+                    <div class="checkbox"></div>
+                    <span class="item-text">RStudio Desktop installato - <a href="https://posit.co/downloads/" style="color: #4facfe;">posit.co/downloads</a></span>
+                </div>
+                <div class="checklist-item" onclick="toggleCheck(this)">
+                    <div class="checkbox"></div>
+                    <span class="item-text">Pacchetto openair installato</span>
+                </div>
+                <div class="checklist-item" onclick="toggleCheck(this)">
+                    <div class="checkbox"></div>
+                    <span class="item-text">Dati di esempio pronti (o usare mydata incluso in openair)</span>
+                </div>
+            </section>
+        </div>
+
+        <!-- PAGE: Modules -->
+        <div id="modules" class="page">
+            <div class="timeline">
+                <!-- Module 1 -->
+                <div class="module" id="module1">
+                    <div class="time-badge">00:00 - 00:30</div>
+                    <div class="module-content" onclick="toggleExpand(this)">
+                        <div class="module-header">
+                            <div class="module-icon icon-intro">✓</div>
+                            <div>
+                                <div class="module-title">1. Introduzione a R e RStudio</div>
+                                <div class="module-duration">30 minuti</div>
+                            </div>
+                        </div>
+                        <ul class="topics-list">
+                            <li>Cosa sono R e RStudio e perché usarli</li>
+                            <li>Installazione e configurazione</li>
+                            <li>L'interfaccia di RStudio (4 pannelli)</li>
+                            <li>Creare il primo progetto</li>
+                            <li>Primi comandi nella console</li>
+                        </ul>
+                        <div class="expandable-content">
+                            <div class="example-section">
+                                <h4>🖥️ I 4 Pannelli di RStudio</h4>
+                                <div class="code-example"><span class="comment"># PANNELLO 1 - SOURCE (alto sinistra)
+# Qui scrivi e salvi i tuoi script .R
+
+# PANNELLO 2 - CONSOLE (basso sinistra)
+# Qui esegui i comandi e vedi i risultati
+
+# PANNELLO 3 - ENVIRONMENT (alto destra)
+# Vedi tutte le variabili create
+
+# PANNELLO 4 - FILES/PLOTS/HELP (basso destra)
+# Navighi file, vedi grafici, consulti help</span></div>
+                            </div>
+
+                            <div class="example-section">
+                                <h4>✨ Primi Comandi</h4>
+                                <div class="code-example"><span class="comment"># R come calcolatrice</span>
+<span class="number">2</span> + <span class="number">2</span>
+<span class="comment"># [1] 4</span>
+
+<span class="number">10</span> * <span class="number">5</span>
+<span class="comment"># [1] 50</span>
+
+<span class="number">100</span> / <span class="number">4</span>
+<span class="comment"># [1] 25</span>
+
+<span class="number">2</span>^<span class="number">10</span>
+<span class="comment"># [1] 1024</span>
+
+<span class="comment"># Il tuo primo messaggio</span>
+<span class="function">print</span>(<span class="string">"Ciao, R!"</span>)
+<span class="comment"># [1] "Ciao, R!"</span></div>
+                            </div>
+
+                            <div class="example-section">
+                                <h4>✨ Creare un Progetto</h4>
+                                <div class="code-example"><span class="comment"># In RStudio:
+# File → New Project → New Directory → New Project
+# 
+# Vantaggi del progetto:
+# ✓ Working directory automatica
+# ✓ Tutti i file organizzati insieme
+# ✓ Facile da condividere
+# ✓ Cronologia dei comandi salvata</span>
+
+<span class="comment"># Verificare la cartella di lavoro</span>
+<span class="function">getwd</span>()
+<span class="comment"># [1] "/Users/nome/progetto_aria"</span></div>
+                            </div>
+
+                            <div class="tip-box">
+                                Usa sempre i Progetti RStudio (.Rproj) per organizzare il lavoro! Evita percorsi assoluti.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Module 2 -->
+                <div class="module" id="module2">
+                    <div class="time-badge">00:30 - 01:15</div>
+                    <div class="module-content" onclick="toggleExpand(this)">
+                        <div class="module-header">
+                            <div class="module-icon icon-basics">📝</div>
+                            <div>
+                                <div class="module-title">2. Fondamenti di R</div>
+                                <div class="module-duration">45 minuti</div>
+                            </div>
+                        </div>
+                        <ul class="topics-list">
+                            <li>Variabili e assegnazione</li>
+                            <li>Tipi di dati (numeric, character, logical)</li>
+                            <li>Vettori e operazioni</li>
+                            <li>Data frame: la struttura fondamentale</li>
+                            <li>Installare e caricare pacchetti</li>
+                            <li>Ottenere aiuto</li>
+                        </ul>
+                        <div class="expandable-content">
+                            <div class="example-section">
+                                <h4>📦 Variabili e Assegnazione</h4>
+                                <div class="code-example"><span class="comment"># Assegnare valori a variabili (usa <- oppure =)</span>
+x <- <span class="number">10</span>
+nome <- <span class="string">"PM10"</span>
+attivo <- <span class="keyword">TRUE</span>
+
+<span class="comment"># Vedere il contenuto</span>
+x
+<span class="comment"># [1] 10</span>
+
+nome
+<span class="comment"># [1] "PM10"</span>
+
+<span class="comment"># Tipo di dato</span>
+<span class="function">class</span>(x)
+<span class="comment"># [1] "numeric"</span>
+
+<span class="function">class</span>(nome)
+<span class="comment"># [1] "character"</span>
+
+<span class="function">class</span>(attivo)
+<span class="comment"># [1] "logical"</span></div>
+                            </div>
+
+                            <div class="example-section">
+                                <h4>📊 Vettori</h4>
+                                <div class="code-example"><span class="comment"># Creare vettori con c() - "combine"</span>
+valori_pm10 <- <span class="function">c</span>(<span class="number">25, 30, 45, 28, 52, 38, 41</span>)
+giorni <- <span class="function">c</span>(<span class="string">"Lun"</span>, <span class="string">"Mar"</span>, <span class="string">"Mer"</span>, <span class="string">"Gio"</span>, <span class="string">"Ven"</span>, <span class="string">"Sab"</span>, <span class="string">"Dom"</span>)
+
+<span class="comment"># Lunghezza del vettore</span>
+<span class="function">length</span>(valori_pm10)
+<span class="comment"># [1] 7</span>
+
+<span class="comment"># Operazioni statistiche</span>
+<span class="function">mean</span>(valori_pm10)      <span class="comment"># media: 37</span>
+<span class="function">median</span>(valori_pm10)    <span class="comment"># mediana: 38</span>
+<span class="function">min</span>(valori_pm10)       <span class="comment"># minimo: 25</span>
+<span class="function">max</span>(valori_pm10)       <span class="comment"># massimo: 52</span>
+<span class="function">sd</span>(valori_pm10)        <span class="comment"># deviazione standard: 9.61</span>
+<span class="function">sum</span>(valori_pm10)       <span class="comment"># somma: 259</span>
+
+<span class="comment"># Accedere agli elementi (indici partono da 1!)</span>
+valori_pm10[<span class="number">1</span>]         <span class="comment"># primo elemento: 25</span>
+valori_pm10[<span class="number">3</span>]         <span class="comment"># terzo elemento: 45</span>
+valori_pm10[<span class="number">1</span>:<span class="number">3</span>]       <span class="comment"># primi 3: 25 30 45</span>
+valori_pm10[<span class="function">c</span>(<span class="number">1,5,7</span>)]  <span class="comment"># elementi 1, 5, 7</span>
+
+<span class="comment"># Sequenze</span>
+<span class="function">seq</span>(<span class="number">1</span>, <span class="number">10</span>, by = <span class="number">2</span>)     <span class="comment"># 1 3 5 7 9</span>
+<span class="function">rep</span>(<span class="number">5</span>, times = <span class="number">3</span>)      <span class="comment"># 5 5 5</span>
+<span class="number">1</span>:<span class="number">10</span>                    <span class="comment"># 1 2 3 4 5 6 7 8 9 10</span></div>
+                            </div>
+
+                            <div class="example-section">
+                                <h4>📋 Data Frame</h4>
+                                <div class="code-example"><span class="comment"># Creare un data frame (tabella)</span>
+dati_aria <- <span class="function">data.frame</span>(
+    data = <span class="function">c</span>(<span class="string">"2024-01-01"</span>, <span class="string">"2024-01-02"</span>, <span class="string">"2024-01-03"</span>),
+    pm10 = <span class="function">c</span>(<span class="number">35, 42, 28</span>),
+    pm25 = <span class="function">c</span>(<span class="number">22, 31, 19</span>),
+    no2 = <span class="function">c</span>(<span class="number">45, 52, 38</span>)
+)
+
+<span class="comment"># Vedere il data frame</span>
+dati_aria
+<span class="comment">#         data pm10 pm25 no2
+# 1 2024-01-01   35   22  45
+# 2 2024-01-02   42   31  52
+# 3 2024-01-03   28   19  38</span>
+
+<span class="comment"># Esplorare struttura</span>
+<span class="function">str</span>(dati_aria)       <span class="comment"># struttura</span>
+<span class="function">head</span>(dati_aria)      <span class="comment"># prime 6 righe</span>
+<span class="function">tail</span>(dati_aria)      <span class="comment"># ultime 6 righe</span>
+<span class="function">summary</span>(dati_aria)   <span class="comment"># statistiche riassuntive</span>
+<span class="function">nrow</span>(dati_aria)      <span class="comment"># numero righe</span>
+<span class="function">ncol</span>(dati_aria)      <span class="comment"># numero colonne</span>
+<span class="function">names</span>(dati_aria)     <span class="comment"># nomi colonne</span>
+
+<span class="comment"># Accedere a colonne</span>
+dati_aria$pm10           <span class="comment"># colonna pm10</span>
+dati_aria[, <span class="string">"pm10"</span>]      <span class="comment"># stesso risultato</span>
+dati_aria[, <span class="number">2</span>]           <span class="comment"># seconda colonna</span>
+
+<span class="comment"># Accedere a righe</span>
+dati_aria[<span class="number">1</span>, ]           <span class="comment"># prima riga</span>
+dati_aria[<span class="number">1</span>:<span class="number">2</span>, ]         <span class="comment"># prime 2 righe</span>
+
+<span class="comment"># Cella specifica</span>
+dati_aria[<span class="number">2</span>, <span class="number">3</span>]          <span class="comment"># riga 2, colonna 3: 31</span></div>
+                            </div>
+
+                            <div class="example-section">
+                                <h4>📦 Installare e Caricare Pacchetti</h4>
+                                <div class="code-example"><span class="comment"># INSTALLARE (solo una volta)</span>
+<span class="function">install.packages</span>(<span class="string">"openair"</span>)
+
+<span class="comment"># CARICARE (ogni sessione di lavoro)</span>
+<span class="function">library</span>(openair)
+
+<span class="comment"># Verificare pacchetti installati</span>
+<span class="function">installed.packages</span>()[, <span class="string">"Package"</span>]
+
+<span class="comment"># Aggiornare pacchetti</span>
+<span class="function">update.packages</span>()</div>
+                            </div>
+
+                            <div class="example-section">
+                                <h4>❓ Ottenere Aiuto</h4>
+                                <div class="code-example"><span class="comment"># Help di una funzione</span>
+?mean
+<span class="function">help</span>(mean)
+
+<span class="comment"># Cercare nell'help</span>
+??<span class="string">"wind rose"</span>
+
+<span class="comment"># Esempi di una funzione</span>
+<span class="function">example</span>(mean)
+
+<span class="comment"># Argomenti di una funzione</span>
+<span class="function">args</span>(mean)</div>
+                            </div>
+
+                            <div class="tip-box">
+                                In R gli indici partono da 1, non da 0 come in Python!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Module 3 -->
+                <div class="module" id="module3">
+                    <div class="time-badge">01:15 - 02:15 + ☕ PAUSA</div>
+                    <div class="module-content" onclick="toggleExpand(this)">
+                        <div class="module-header">
+                            <div class="module-icon icon-data">🔧</div>
+                            <div>
+                                <div class="module-title">3. Preparazione dei Dati</div>
+                                <div class="module-duration">60 minuti (include 15 min pausa)</div>
+                            </div>
+                        </div>
+                        <ul class="topics-list">
+                            <li>Importare dati da CSV e Excel</li>
+                            <li>Gestione date e ore (POSIXct)</li>
+                            <li>Gestione valori mancanti (NA)</li>
+                            <li>Filtrare e selezionare dati</li>
+                            <li>Rinominare colonne</li>
+                            <li>Formato richiesto da openair</li>
+                        </ul>
+                        <div class="expandable-content">
+                            <div class="example-section">
+                                <h4>📥 Importare Dati CSV</h4>
+                                <div class="code-example"><span class="comment"># CSV con separatore virgola</span>
+dati <- <span class="function">read.csv</span>(<span class="string">"dati_aria.csv"</span>)
+
+<span class="comment"># CSV con separatore punto e virgola (comune in Italia!)</span>
+dati <- <span class="function">read.csv2</span>(<span class="string">"dati_aria.csv"</span>)
+
+<span class="comment"># Specificare opzioni</span>
+dati <- <span class="function">read.csv</span>(
+    <span class="string">"dati_aria.csv"</span>,
+    sep = <span class="string">";"</span>,                          <span class="comment"># separatore</span>
+    dec = <span class="string">","</span>,                          <span class="comment"># decimale</span>
+    header = <span class="keyword">TRUE</span>,                      <span class="comment"># prima riga = intestazioni</span>
+    stringsAsFactors = <span class="keyword">FALSE</span>,
+    na.strings = <span class="function">c</span>(<span class="string">""</span>, <span class="string">"NA"</span>, <span class="string">"-999"</span>, <span class="string">"n.d."</span>)  <span class="comment"># valori NA</span>
+)
+
+<span class="comment"># Verificare l'importazione</span>
+<span class="function">head</span>(dati)
+<span class="function">str</span>(dati)</div>
+                            </div>
+
+                            <div class="example-section">
+                                <h4>📅 Importare da Excel</h4>
+                                <div class="code-example"><span class="comment"># Installare pacchetto (una volta)</span>
+<span class="function">install.packages</span>(<span class="string">"readxl"</span>)
+
+<span class="comment"># Caricare</span>
+<span class="function">library</span>(readxl)
+
+<span class="comment"># Importare</span>
+dati <- <span class="function">read_excel</span>(<span class="string">"dati_aria.xlsx"</span>)
+
+<span class="comment"># Specificare foglio</span>
+dati <- <span class="function">read_excel</span>(<span class="string">"dati_aria.xlsx"</span>, sheet = <span class="string">"Stazione_01"</span>)
+
+<span class="comment"># Specificare foglio per numero</span>
+dati <- <span class="function">read_excel</span>(<span class="string">"dati_aria.xlsx"</span>, sheet = <span class="number">2</span>)
+
+<span class="comment"># Vedere i nomi dei fogli</span>
+<span class="function">excel_sheets</span>(<span class="string">"dati_aria.xlsx"</span>)</div>
+                            </div>
+
+                            <div class="warning-box">
+                                openair richiede una colonna chiamata esattamente <code>date</code> in formato POSIXct!
+                            </div>
+
+                            <div class="example-section">
+                                <h4>📅 Conversione Date (FONDAMENTALE!)</h4>
+                                <div class="code-example"><span class="comment"># Formato data italiano: gg/mm/aaaa HH:MM</span>
+dati$date <- <span class="function">as.POSIXct</span>(
+    dati$data_ora,
+    format = <span class="string">"%d/%m/%Y %H:%M"</span>,
+    tz = <span class="string">"Europe/Rome"</span>
+)
+
+<span class="comment"># Formato ISO: aaaa-mm-gg HH:MM:SS</span>
+dati$date <- <span class="function">as.POSIXct</span>(
+    dati$data_ora,
+    format = <span class="string">"%Y-%m-%d %H:%M:%S"</span>,
+    tz = <span class="string">"Europe/Rome"</span>
+)
+
+<span class="comment"># Solo data senza ora</span>
+dati$date <- <span class="function">as.POSIXct</span>(
+    dati$data,
+    format = <span class="string">"%Y-%m-%d"</span>,
+    tz = <span class="string">"Europe/Rome"</span>
+)
+
+<span class="comment"># ═══════════════════════════════════════
+# CODICI FORMATO DATA PIÙ COMUNI:
+# ═══════════════════════════════════════
+# %Y = anno 4 cifre (2024)
+# %y = anno 2 cifre (24)
+# %m = mese numerico (01-12)
+# %d = giorno (01-31)
+# %H = ora 24h (00-23)
+# %M = minuti (00-59)
+# %S = secondi (00-59)</span>
+
+<span class="comment"># Verificare la conversione</span>
+<span class="function">class</span>(dati$date)
+<span class="comment"># [1] "POSIXct" "POSIXt"  ← CORRETTO!</span>
+
+<span class="function">head</span>(dati$date)</div>
+                            </div>
+
+                            <div class="example-section">
+                                <h4>🏷️ Rinominare Colonne</h4>
+                                <div class="code-example"><span class="comment"># Vedere nomi attuali</span>
+<span class="function">names</span>(dati)
+<span class="comment"># [1] "data_ora" "PM10" "PM2.5" "VelVento" "DirVento"</span>
+
+<span class="comment"># Rinominare TUTTE le colonne</span>
+<span class="function">names</span>(dati) <- <span class="function">c</span>(<span class="string">"date"</span>, <span class="string">"pm10"</span>, <span class="string">"pm25"</span>, <span class="string">"ws"</span>, <span class="string">"wd"</span>)
+
+<span class="comment"># Rinominare SINGOLA colonna</span>
+<span class="function">names</span>(dati)[<span class="function">names</span>(dati) == <span class="string">"VelVento"</span>] <- <span class="string">"ws"</span>
+<span class="function">names</span>(dati)[<span class="function">names</span>(dati) == <span class="string">"DirVento"</span>] <- <span class="string">"wd"</span>
+
+<span class="comment"># ═══════════════════════════════════════
+# NOMI RICHIESTI DA OPENAIR:
+# ═══════════════════════════════════════
+# date = data/ora (POSIXct)
+# ws   = wind speed (velocità vento, m/s)
+# wd   = wind direction (direzione vento, gradi)</span></div>
+                            </div>
+
+                            <div class="example-section">
+                                <h4>🚫 Gestione Valori Mancanti (NA)</h4>
+                                <div class="code-example"><span class="comment"># Contare NA per colonna</span>
+<span class="function">colSums</span>(<span class="function">is.na</span>(dati))
+
+<span class="comment"># Verificare se ci sono NA</span>
+<span class="function">any</span>(<span class="function">is.na</span>(dati$pm10))
+
+<span class="comment"># Quanti NA in una colonna</span>
+<span class="function">sum</span>(<span class="function">is.na</span>(dati$pm10))
+
+<span class="comment"># Rimuovere righe con NA in pm10</span>
+dati_puliti <- dati[!<span class="function">is.na</span>(dati$pm10), ]
+
+<span class="comment"># Rimuovere righe con qualsiasi NA</span>
+dati_completi <- <span class="function">na.omit</span>(dati)
+
+<span class="comment"># Sostituire NA con un valore</span>
+dati$pm10[<span class="function">is.na</span>(dati$pm10)] <- <span class="number">0</span>
+
+<span class="comment"># Sostituire NA con la media</span>
+media_pm10 <- <span class="function">mean</span>(dati$pm10, na.rm = <span class="keyword">TRUE</span>)
+dati$pm10[<span class="function">is.na</span>(dati$pm10)] <- media_pm10</div>
+                            </div>
+
+                            <div class="example-section">
+                                <h4>🔍 Filtrare Dati</h4>
+                                <div class="code-example"><span class="comment"># Filtrare righe che soddisfano una condizione</span>
+dati_alti <- dati[dati$pm10 > <span class="number">50</span>, ]
+
+<span class="comment"># Combinare condizioni con & (AND)</span>
+dati_filtro <- dati[dati$pm10 > <span class="number">30</span> & dati$no2 > <span class="number">40</span>, ]
+
+<span class="comment"># Combinare condizioni con | (OR)</span>
+dati_filtro <- dati[dati$pm10 > <span class="number">100</span> | dati$no2 > <span class="number">200</span>, ]
+
+<span class="comment"># Usare subset() - più leggibile</span>
+dati_estate <- <span class="function">subset</span>(dati, mese >= <span class="number">6</span> & mese <= <span class="number">8</span>)
+
+<span class="comment"># Rimuovere valori negativi (errori)</span>
+dati <- dati[dati$pm10 >= <span class="number">0</span> | <span class="function">is.na</span>(dati$pm10), ]
+
+<span class="comment"># Selezionare solo alcune colonne</span>
+dati_sel <- dati[, <span class="function">c</span>(<span class="string">"date"</span>, <span class="string">"pm10"</span>, <span class="string">"ws"</span>, <span class="string">"wd"</span>)]</div>
+                            </div>
+
+                            <div class="example-section">
+                                <h4>✅ Esempio Completo: Preparare Dati per openair</h4>
+                                <div class="code-example"><span class="comment"># ═══════════════════════════════════════
+# WORKFLOW COMPLETO DI PREPARAZIONE DATI
+# ═══════════════════════════════════════</span>
+
+<span class="comment"># 1. Importare</span>
+dati <- <span class="function">read.csv2</span>(<span class="string">"stazione_01.csv"</span>)
+
+<span class="comment"># 2. Verificare struttura</span>
+<span class="function">str</span>(dati)
+<span class="function">head</span>(dati)
+
+<span class="comment"># 3. Rinominare colonne per openair</span>
+<span class="function">names</span>(dati) <- <span class="function">c</span>(<span class="string">"data_orig"</span>, <span class="string">"pm10"</span>, <span class="string">"pm25"</span>, 
+                  <span class="string">"no2"</span>, <span class="string">"o3"</span>, <span class="string">"ws"</span>, <span class="string">"wd"</span>)
+
+<span class="comment"># 4. Convertire data</span>
+dati$date <- <span class="function">as.POSIXct</span>(
+    dati$data_orig,
+    format = <span class="string">"%d/%m/%Y %H:%M"</span>,
+    tz = <span class="string">"Europe/Rome"</span>
+)
+
+<span class="comment"># 5. Verificare conversione</span>
+<span class="function">class</span>(dati$date)
+<span class="function">head</span>(dati$date)
+
+<span class="comment"># 6. Rimuovere valori impossibili</span>
+dati$pm10[dati$pm10 < <span class="number">0</span>] <- <span class="keyword">NA</span>
+dati$pm25[dati$pm25 < <span class="number">0</span>] <- <span class="keyword">NA</span>
+dati$ws[dati$ws < <span class="number">0</span>] <- <span class="keyword">NA</span>
+dati$wd[dati$wd < <span class="number">0</span> | dati$wd > <span class="number">360</span>] <- <span class="keyword">NA</span>
+
+<span class="comment"># 7. Verificare NA</span>
+<span class="function">colSums</span>(<span class="function">is.na</span>(dati))
+
+<span class="comment"># 8. Riepilogo finale</span>
+<span class="function">summary</span>(dati)
+
+<span class="comment"># 9. Pronto per openair!</span>
+<span class="function">library</span>(openair)
+<span class="function">summaryPlot</span>(dati)</div>
+                            </div>
+
+                            <div class="tip-box">
+                                Salva sempre il dataset pulito: <code>write.csv(dati, "dati_puliti.csv", row.names = FALSE)</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                                <!-- Module 4 -->
+                <div class="module" id="module4">
+                    <div class="time-badge">02:15 - 03:15</div>
+                    <div class="module-content" onclick="toggleExpand(this)">
+                        <div class="module-header">
+                            <div class="module-icon icon-openair">🌬️</div>
+                            <div>
+                                <div class="module-title">4. Il Pacchetto openair</div>
+                                <div class="module-duration">60 minuti</div>
+                            </div>
+                        </div>
+                        <ul class="topics-list">
+                            <li>Panoramica delle funzioni principali</li>
+                            <li>Analisi temporali (timePlot, timeVariation)</li>
+                            <li>Rosa dei venti (windRose, pollutionRose)</li>
+                            <li>Polar plot e analisi direzionale</li>
+                            <li>Statistiche e trend</li>
+                            <li>Esportare grafici</li>
+                        </ul>
+                        <div class="expandable-content">
+                            <div class="example-section">
+                                <h4>🚀 Iniziare con openair</h4>
+                                <div class="code-example"><span class="comment"># Caricare il pacchetto</span>
+<span class="function">library</span>(openair)
+
+<span class="comment"># Usare il dataset di esempio incluso</span>
+<span class="function">data</span>(mydata)
+
+<span class="comment"># Esplorare il dataset</span>
+<span class="function">head</span>(mydata)
+<span class="function">str</span>(mydata)
+<span class="function">names</span>(mydata)
+<span class="comment"># [1] "date" "ws" "wd" "nox" "no2" "o3" "pm10" "so2" "co" "pm25"</span>
+
+<span class="comment"># Riepilogo grafico</span>
+<span class="function">summaryPlot</span>(mydata)</div>
+                            </div>
+
+                            <div class="example-section">
+                                <h4>📈 Serie Temporali - timePlot</h4>
+                                <div class="code-example"><span class="comment"># Serie temporale base</span>
+<span class="function">timePlot</span>(mydata, pollutant = <span class="string">"pm10"</span>)
+
+<span class="comment"># Più inquinanti insieme</span>
+<span class="function">timePlot</span>(mydata, pollutant = <span class="function">c</span>(<span class="string">"pm10"</span>, <span class="string">"pm25"</span>, <span class="string">"no2"</span>))
+
+<span class="comment"># Media giornaliera</span>
+<span class="function">timePlot</span>(
+    mydata, 
+    pollutant = <span class="string">"pm10"</span>,
+    avg.time = <span class="string">"day"</span>
+)
+
+<span class="comment"># Media mensile</span>
+<span class="function">timePlot</span>(
+    mydata, 
+    pollutant = <span class="string">"pm10"</span>,
+    avg.time = <span class="string">"month"</span>
+)
+
+<span class="comment"># Normalizzare per confronto</span>
+<span class="function">timePlot</span>(
+    mydata, 
+    pollutant = <span class="function">c</span>(<span class="string">"pm10"</span>, <span class="string">"no2"</span>, <span class="string">"o3"</span>),
+    normalise = <span class="string">"mean"</span>
+)
+
+<span class="comment"># Aggiungere linea di riferimento (limite 50 µg/m³)</span>
+<span class="function">timePlot</span>(
+    mydata, 
+    pollutant = <span class="string">"pm10"</span>,
+    ref.y = <span class="function">list</span>(h = <span class="number">50</span>, lty = <span class="number">2</span>, col = <span class="string">"red"</span>)
+)</div>
+                            </div>
+
+                            <div class="example-section">
+                                <h4>🕐 Variazione Temporale - timeVariation</h4>
+                                <div class="code-example"><span class="comment"># Variazione completa (ora, giorno settimana, mese)</span>
+<span class="function">timeVariation</span>(mydata, pollutant = <span class="string">"pm10"</span>)
+
+<span class="comment"># Confronto tra inquinanti</span>
+<span class="function">timeVariation</span>(
+    mydata, 
+    pollutant = <span class="function">c</span>(<span class="string">"pm10"</span>, <span class="string">"no2"</span>),
+    normalise = <span class="keyword">TRUE</span>
+)
+
+<span class="comment"># Dividere per anno</span>
+<span class="function">timeVariation</span>(
+    mydata, 
+    pollutant = <span class="string">"no2"</span>,
+    type = <span class="string">"year"</span>
+)
+
+<span class="comment"># Dividere per stagione</span>
+<span class="function">timeVariation</span>(
+    mydata, 
+    pollutant = <span class="string">"o3"</span>,
+    type = <span class="string">"season"</span>
+)</div>
+                            </div>
+
+                            <div class="example-section">
+                                <h4>🧭 Rosa dei Venti - windRose</h4>
+                                <div class="code-example"><span class="comment"># Rosa dei venti base</span>
+<span class="function">windRose</span>(mydata)
+
+<span class="comment"># Per stagione</span>
+<span class="function">windRose</span>(mydata, type = <span class="string">"season"</span>)
+
+<span class="comment"># Per anno</span>
+<span class="function">windRose</span>(mydata, type = <span class="string">"year"</span>)
+
+<span class="comment"># Per mese</span>
+<span class="function">windRose</span>(mydata, type = <span class="string">"month"</span>)
+
+<span class="comment"># Personalizzare</span>
+<span class="function">windRose</span>(
+    mydata, 
+    ws.int = <span class="number">2</span>,                              <span class="comment"># intervallo velocità</span>
+    breaks = <span class="function">c</span>(<span class="number">0</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>, <span class="number">8</span>, <span class="number">12</span>),           <span class="comment"># classi velocità</span>
+    paddle = <span class="keyword">FALSE</span>,                           <span class="comment"># barre invece di pale</span>
+    key.position = <span class="string">"right"</span>                    <span class="comment"># posizione legenda</span>
+)</div>
+                            </div>
+
+                            <div class="example-section">
+                                <h4>🌹 Rosa degli Inquinanti - pollutionRose</h4>
+                                <div class="code-example"><span class="comment"># Rosa inquinanti base</span>
+<span class="function">pollutionRose</span>(mydata, pollutant = <span class="string">"pm10"</span>)
+
+<span class="comment"># Per stagione</span>
+<span class="function">pollutionRose</span>(
+    mydata, 
+    pollutant = <span class="string">"no2"</span>,
+    type = <span class="string">"season"</span>
+)
+
+<span class="comment"># Proporzione invece di media</span>
+<span class="function">pollutionRose</span>(
+    mydata, 
+    pollutant = <span class="string">"pm10"</span>,
+    statistic = <span class="string">"prop.mean"</span>
+)
+
+<span class="comment"># Confronto giorno/notte</span>
+<span class="function">pollutionRose</span>(
+    mydata, 
+    pollutant = <span class="string">"no2"</span>,
+    type = <span class="string">"daylight"</span>
+)</div>
+                            </div>
+
+                            <div class="example-section">
+                                <h4>🎯 Polar Plot</h4>
+                                <div class="code-example"><span class="comment"># Polar plot base</span>
+<span class="function">polarPlot</span>(mydata, pollutant = <span class="string">"pm10"</span>)
+
+<span class="comment"># Per stagione</span>
+<span class="function">polarPlot</span>(
+    mydata, 
+    pollutant = <span class="string">"nox"</span>,
+    type = <span class="string">"season"</span>
+)
+
+<span class="comment"># Polar Annulus (variazione oraria)</span>
+<span class="function">polarAnnulus</span>(
+    mydata, 
+    pollutant = <span class="string">"no2"</span>,
+    period = <span class="string">"hour"</span>
+)
+
+<span class="comment"># Polar Frequency</span>
+<span class="function">polarFreq</span>(
+    mydata, 
+    pollutant = <span class="string">"pm10"</span>,
+    type = <span class="string">"season"</span>
+)</div>
+                            </div>
+
+                            <div class="example-section">
+                                <h4>📊 Calendario - calendarPlot</h4>
+                                <div class="code-example"><span class="comment"># Calendario annuale</span>
+<span class="function">calendarPlot</span>(
+    mydata, 
+    pollutant = <span class="string">"pm10"</span>,
+    year = <span class="number">2003</span>
+)
+
+<span class="comment"># Con soglie personalizzate</span>
+<span class="function">calendarPlot</span>(
+    mydata, 
+    pollutant = <span class="string">"pm10"</span>,
+    year = <span class="number">2003</span>,
+    breaks = <span class="function">c</span>(<span class="number">0</span>, <span class="number">25</span>, <span class="number">50</span>, <span class="number">75</span>, <span class="number">100</span>, <span class="number">200</span>),
+    labels = <span class="function">c</span>(<span class="string">"Buono"</span>, <span class="string">"Discreto"</span>, <span class="string">"Moderato"</span>, 
+              <span class="string">"Scarso"</span>, <span class="string">"Pessimo"</span>)
+)</div>
+                            </div>
+
+                            <div class="example-section">
+                                <h4>📉 Trend - TheilSen</h4>
+                                <div class="code-example"><span class="comment"># Trend Mann-Kendall/Theil-Sen</span>
+<span class="function">TheilSen</span>(
+    mydata, 
+    pollutant = <span class="string">"pm10"</span>,
+    deseason = <span class="keyword">TRUE</span>
+)
+
+<span class="comment"># Per stagione</span>
+<span class="function">TheilSen</span>(
+    mydata, 
+    pollutant = <span class="string">"no2"</span>,
+    type = <span class="string">"season"</span>
+)</div>
+                            </div>
+
+                            <div class="example-section">
+                                <h4>💾 Esportare Grafici</h4>
+                                <div class="code-example"><span class="comment"># Metodo 1: PNG</span>
+<span class="function">png</span>(<span class="string">"rosa_venti.png"</span>, width = <span class="number">800</span>, height = <span class="number">600</span>)
+<span class="function">windRose</span>(mydata)
+<span class="function">dev.off</span>()
+
+<span class="comment"># Metodo 2: PDF (vettoriale, alta qualità)</span>
+<span class="function">pdf</span>(<span class="string">"analisi_pm10.pdf"</span>, width = <span class="number">10</span>, height = <span class="number">8</span>)
+<span class="function">polarPlot</span>(mydata, pollutant = <span class="string">"pm10"</span>)
+<span class="function">dev.off</span>()
+
+<span class="comment"># Metodo 3: Alta risoluzione per stampa</span>
+<span class="function">png</span>(
+    <span class="string">"grafico_hd.png"</span>, 
+    width = <span class="number">3000</span>, 
+    height = <span class="number">2000</span>, 
+    res = <span class="number">300</span>
+)
+<span class="function">timePlot</span>(mydata, pollutant = <span class="string">"pm10"</span>)
+<span class="function">dev.off</span>()</div>
+                            </div>
+
+                            <div class="tip-box">
+                                Usa <code>type = "season"</code> in quasi tutte le funzioni per vedere variazioni stagionali!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Module 5 -->
+                <div class="module" id="module5">
+                    <div class="time-badge">03:15 - 04:00</div>
+                    <div class="module-content" onclick="toggleExpand(this)">
+                        <div class="module-header">
+                            <div class="module-icon icon-practice">💻</div>
+                            <div>
+                                <div class="module-title">5. Esercitazione Pratica</div>
+                                <div class="module-duration">45 minuti</div>
+                            </div>
+                        </div>
+                        <ul class="topics-list">
+                            <li>Esercizio guidato con dati di esempio</li>
+                            <li>Workflow completo: import → pulizia → analisi</li>
+                            <li>Creare un mini-report</li>
+                            <li>Domande e troubleshooting</li>
+                        </ul>
+                        <div class="expandable-content">
+                            <div class="example-section">
+                                <h4>🎯 Esercizio Guidato Completo</h4>
+                                <div class="code-example"><span class="comment"># ════════════════════════════════════════════════════════════════
+# ESERCIZIO: ANALISI COMPLETA QUALITÀ DELL'ARIA
+# ══════════════════════════════════════════════════════════════</span>
+
+<span class="comment"># STEP 1: Preparazione ambiente</span>
+<span class="function">library</span>(openair)
+
+<span class="comment"># STEP 2: Caricare dati di esempio</span>
+<span class="function">data</span>(mydata)
+<span class="function">head</span>(mydata)
+
+<span class="comment"># STEP 3: Panoramica dati</span>
+<span class="function">summaryPlot</span>(mydata)
+
+<span class="comment"># STEP 4: Serie temporale PM10</span>
+<span class="function">timePlot</span>(
+    mydata, 
+    pollutant = <span class="string">"pm10"</span>,
+    avg.time = <span class="string">"month"</span>,
+    main = <span class="string">"PM10 - Media Mensile"</span>
+)
+
+<span class="comment"># STEP 5: Variazione giornaliera/settimanale</span>
+<span class="function">timeVariation</span>(mydata, pollutant = <span class="string">"pm10"</span>)
+
+<span class="comment"># STEP 6: Rosa dei venti</span>
+<span class="function">windRose</span>(mydata, type = <span class="string">"season"</span>)
+
+<span class="comment"># STEP 7: Da dove arriva l'inquinamento?</span>
+<span class="function">pollutionRose</span>(mydata, pollutant = <span class="string">"pm10"</span>)
+
+<span class="comment"># STEP 8: Polar plot per identificare sorgenti</span>
+<span class="function">polarPlot</span>(mydata, pollutant = <span class="string">"pm10"</span>)
+
+<span class="comment"># STEP 9: Calendario superamenti</span>
+<span class="function">calendarPlot</span>(
+    mydata, 
+    pollutant = <span class="string">"pm10"</span>,
+    year = <span class="number">2003</span>
+)
+
+<span class="comment"># STEP 10: Trend nel tempo</span>
+<span class="function">TheilSen</span>(
+    mydata, 
+    pollutant = <span class="string">"pm10"</span>,
+    deseason = <span class="keyword">TRUE</span>
+)</div>
+                            </div>
+
+                            <div class="example-section">
+                                <h4>🔧 Troubleshooting Comune</h4>
+                                <div class="code-example"><span class="comment"># ═══════════════════════════════════════════════════════
+# ERRORI COMUNI E SOLUZIONI
+# ═══════════════════════════════════════════════════════</span>
+
+<span class="comment"># ERRORE: could not find function "windRose"</span>
+<span class="comment"># CAUSA: Hai dimenticato di caricare openair</span>
+<span class="comment"># SOLUZIONE:</span>
+<span class="function">library</span>(openair)
+
+<span class="comment"># ───────────────────────────────────────────────────────</span>
+
+<span class="comment"># ERRORE: object 'mydata' not found</span>
+<span class="comment"># CAUSA: Dataset non caricato</span>
+<span class="comment"># SOLUZIONE:</span>
+<span class="function">data</span>(mydata)
+
+<span class="comment"># ────────────────────────────────────────────────────────</span>
+
+<span class="comment"># ERRORE: 'date' column not found</span>
+<span class="comment"># CAUSA: La colonna non si chiama "date"</span>
+<span class="comment"># SOLUZIONE:</span>
+<span class="function">names</span>(dati)[<span class="number">1</span>] <- <span class="string">"date"</span>
+
+<span class="comment"># ─────────────────────────────────────────────────────────</span>
+
+<span class="comment"># ERRORE: 'date' should be class POSIXct</span>
+<span class="comment"># CAUSA: Data non convertita</span>
+<span class="comment"># SOLUZIONE:</span>
+dati$date <- <span class="function">as.POSIXct</span>(dati$date)
+
+<span class="comment"># ───────────────────────────────────────────────────────</span>
+
+<span class="comment"># ERRORE: 'ws' and 'wd' are needed</span>
+<span class="comment"># CAUSA: Colonne vento non rinominate</span>
+<span class="comment"># SOLUZIONE:</span>
+<span class="function">names</span>(dati)[<span class="function">names</span>(dati) == <span class="string">"vel_vento"</span>] <- <span class="string">"ws"</span>
+<span class="function">names</span>(dati)[<span class="function">names</span>(dati) == <span class="string">"dir_vento"</span>] <- <span class="string">"wd"</span>
+
+<span class="comment"># ───────────────────────────────────────────────────────────</span>
+
+<span class="comment"># Verificare che tutto sia ok</span>
+<span class="function">str</span>(dati)
+<span class="function">names</span>(dati)
+<span class="function">class</span>(dati$date)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE: Definitions -->
+        <div id="definitions" class="page">
+            <div class="search-box">
+                <input type="text" id="searchDef" placeholder="Cerca definizione..." onkeyup="searchDefinitions()">
+            </div>
+
+            <h2 class="category-title">📊 Concetti Base di R</h2>
+            <div class="definitions-grid" id="defGrid">
+                <div class="definition-card" data-terms="variabile oggetto assegnazione">
+                    <div class="definition-term">📦 Variabile</div>
+                    <div class="definition-text">
+                        Un contenitore con un nome che memorizza dati (numeri, testo, tabelle). 
+                        Si crea con l'operatore di assegnazione <code>&lt;-</code> o <code>=</code>
+                    </div>
+                    <div class="definition-example">x <- 10
+nome <- "PM10"</div>
+                </div>
+
+                <div class="definition-card" data-terms="vettore array lista sequenza">
+                    <div class="definition-term">📊 Vettore</div>
+                    <div class="definition-text">
+                        Una sequenza ordinata di elementi dello stesso tipo. È la struttura dati 
+                        fondamentale in R. Si crea con la funzione <code>c()</code> (combine).
+                    </div>
+                    <div class="definition-example">valori <- c(25, 30, 45, 28)
+mean(valori)  # 32</div>
+                </div>
+
+                <div class="definition-card" data-terms="data frame tabella dataframe dataset">
+                    <div class="definition-term">📋 Data Frame</div>
+                    <div class="definition-text">
+                        Una tabella di dati con righe (osservazioni) e colonne (variabili). 
+                        Ogni colonna può avere un tipo diverso. È la struttura più usata per i dati.
+                    </div>
+                    <div class="definition-example">dati <- data.frame(
+  data = c("2024-01-01"),
+  pm10 = c(35)
+)</div>
+                </div>
+
+                <div class="definition-card" data-terms="funzione function comando">
+                    <div class="definition-term">⚙️ Funzione</div>
+                    <div class="definition-text">
+                        Un comando che esegue un'operazione. Richiede argomenti tra parentesi 
+                        e restituisce un risultato. Es: <code>mean()</code>, <code>sum()</code>, <code>print()</code>
+                    </div>
+                    <div class="definition-example">mean(c(1, 2, 3))  # 2
+sum(c(10, 20))    # 30</div>
+                </div>
+
+                <div class="definition-card" data-terms="pacchetto package libreria library">
+                    <div class="definition-term">📦 Pacchetto (Package)</div>
+                    <div class="definition-text">
+                        Una raccolta di funzioni, dati e documentazione che estende R. 
+                        Si installa una volta con <code>install.packages()</code> e si carica 
+                        ogni sessione con <code>library()</code>.
+                    </div>
+                    <div class="definition-example">install.packages("openair")
+library(openair)</div>
+                </div>
+
+                <div class="definition-card" data-terms="na missing mancante null vuoto">
+                    <div class="definition-term">❓ NA (Not Available)</div>
+                    <div class="definition-text">
+                        Valore speciale che indica un dato mancante. Molte funzioni hanno 
+                        l'argomento <code>na.rm = TRUE</code> per ignorare i NA nei calcoli.
+                    </div>
+                    <div class="definition-example">x <- c(1, NA, 3)
+mean(x)              # NA
+mean(x, na.rm = TRUE)  # 2</div>
+                </div>
+
+                <div class="definition-card" data-terms="script file codice">
+                    <div class="definition-term">📄 Script</div>
+                    <div class="definition-text">
+                        Un file di testo (estensione .R) contenente codice R. Permette di 
+                        salvare, riutilizzare e condividere il codice. Si esegue con Ctrl+Enter.
+                    </div>
+                    <div class="definition-example"># File: analisi.R
+library(openair)
+data(mydata)
+windRose(mydata)</div>
+                </div>
+
+                <div class="definition-card" data-terms="working directory cartella percorso path">
+                    <div class="definition-term">📁 Working Directory</div>
+                    <div class="definition-text">
+                        La cartella di lavoro corrente. R cerca i file qui e salva i risultati qui. 
+                        Usa progetti RStudio per gestirla automaticamente.
+                    </div>
+                    <div class="definition-example">getwd()         # vedere directory
+setwd("/percorso")  # cambiare</div>
+                </div>
+            </div>
+
+            <h2 class="category-title">📅 Date e Tempo</h2>
+            <div class="definitions-grid">
+                <div class="definition-card" data-terms="posixct data ora timestamp datetime">
+                    <div class="definition-term">📅 POSIXct</div>
+                    <div class="definition-text">
+                        Formato standard R per date e ore. Memorizza il numero di secondi dal 
+                        1 gennaio 1970. <strong>Richiesto da openair</strong> per la colonna date.
+                    </div>
+                    <div class="definition-example">as.POSIXct("2024-01-15 14:30",
+  format = "%Y-%m-%d %H:%M",
+  tz = "Europe/Rome")</div>
+                </div>
+
+                <div class="definition-card" data-terms="formato format strptime strftime">
+                    <div class="definition-term">🔤 Codici Formato Data</div>
+                    <div class="definition-text">
+                        Codici per interpretare stringhe come date:<br>
+                        %Y=anno(2024), %m=mese(01), %d=giorno(15),<br>
+                        %H=ora(14), %M=minuti(30), %S=secondi
+                    </div>
+                    <div class="definition-example">"%d/%m/%Y"       → 15/01/2024
+"%Y-%m-%d %H:%M" → 2024-01-15 14:30</div>
+                </div>
+
+                <div class="definition-card" data-terms="timezone fuso orario tz">
+                    <div class="definition-term">🌍 Timezone (tz)</div>
+                    <div class="definition-text">
+                        Il fuso orario della data. Per l'Italia usare <code>"Europe/Rome"</code>. 
+                        Importante per gestire correttamente ora legale/solare.
+                    </div>
+                    <div class="definition-example">tz = "Europe/Rome"
+tz = "UTC"</div>
+                </div>
+            </div>
+
+            <h2 class="category-title">🌬️ Termini openair</h2>
+            <div class="definitions-grid">
+                <div class="definition-card" data-terms="ws wind speed velocità vento">
+                    <div class="definition-term">💨 ws (Wind Speed)</div>
+                    <div class="definition-text">
+                        Velocità del vento in metri al secondo (m/s). Colonna richiesta da 
+                        openair per le funzioni windRose e polarPlot.
+                    </div>
+                    <div class="definition-example">names(dati)[5] <- "ws"
+# oppure
+dati$ws <- dati$vel_vento</div>
+                </div>
+
+                <div class="definition-card" data-terms="wd wind direction direzione vento gradi">
+                    <div class="definition-term">🧭 wd (Wind Direction)</div>
+                    <div class="definition-text">
+                        Direzione di provenienza del vento in gradi (0-360°). 
+                        Nord=0°/360°, Est=90°, Sud=180°, Ovest=270°.
+                    </div>
+                    <div class="definition-example">names(dati)[6] <- "wd"
+# Range valido: 0-360</div>
+                </div>
+
+                <div class="definition-card" data-terms="pollutant inquinante parametro">
+                    <div class="definition-term">☁️ pollutant</div>
+                    <div class="definition-text">
+                        Argomento che specifica quale inquinante analizzare. 
+                        Deve corrispondere al nome esatto della colonna nel data frame.
+                    </div>
+                    <div class="definition-example">timePlot(mydata, pollutant = "pm10")
+polarPlot(mydata, pollutant = "no2")</div>
+                </div>
+
+                <div class="definition-card" data-terms="type tipo raggruppamento divisione">
+                    <div class="definition-term">📊 type</div>
+                    <div class="definition-text">
+                        Argomento per dividere i grafici per categoria. 
+                        Valori comuni: "season", "year", "month", "weekday", "daylight".
+                    </div>
+                    <div class="definition-example">windRose(mydata, type = "season")
+polarPlot(mydata, type = "year")</div>
+                </div>
+
+                <div class="definition-card" data-terms="avg.time media temporale aggregazione">
+                    <div class="definition-term">⏱️ avg.time</div>
+                    <div class="definition-text">
+                        Media temporale per aggregare i dati. 
+                        Valori: "hour", "day", "week", "month", "year".
+                    </div>
+                    <div class="definition-example">timePlot(mydata, 
+  pollutant = "pm10",
+  avg.time = "month")</div>
+                </div>
+
+                <div class="definition-card" data-terms="mydata esempio dataset dati">
+                    <div class="definition-term">📊 mydata</div>
+                    <div class="definition-text">
+                        Dataset di esempio incluso in openair. Contiene dati orari di qualità 
+                        dell'aria da Londra (1998-2005). Perfetto per esercitarsi.
+                    </div>
+                    <div class="definition-example">library(openair)
+data(mydata)
+head(mydata)</div>
+                </div>
+            </div>
+
+            <h2 class="category-title">📈 Funzioni openair Principali</h2>
+            <div class="definitions-grid">
+                <div class="definition-card" data-terms="summaryplot riepilogo panoramica">
+                    <div class="definition-term">📊 summaryPlot</div>
+                    <div class="definition-text">
+                        Crea un riepilogo grafico del dataset: istogrammi, serie temporali, 
+                        e statistiche per ogni variabile.
+                    </div>
+                    <div class="definition-example">summaryPlot(mydata)</div>
+                </div>
+
+                <div class="definition-card" data-terms="timeplot serie temporale andamento">
+                    <div class="definition-term">📈 timePlot</div>
+                    <div class="definition-text">
+                        Grafico a serie temporale. Mostra l'andamento di uno o più inquinanti 
+                        nel tempo.
+                    </div>
+                    <div class="definition-example">timePlot(mydata, 
+  pollutant = c("pm10", "no2"))</div>
+                </div>
+
+                <div class="definition-card" data-terms="timevariation variazione ciclica pattern">
+                    <div class="definition-term">🔄 timeVariation</div>
+                    <div class="definition-text">
+                        Mostra le variazioni cicliche: per ora del giorno, giorno della settimana, 
+                        e mese dell'anno.
+                    </div>
+                    <div class="definition-example">timeVariation(mydata, 
+  pollutant = "pm10")</div>
+                </div>
+
+                <div class="definition-card" data-terms="windrose rosa venti direzione frequenza">
+                    <div class="definition-term">🧭 windRose</div>
+                    <div class="definition-text">
+                        Rosa dei venti: mostra frequenza e velocità del vento per direzione. 
+                        Fondamentale per capire da dove arriva l'aria.
+                    </div>
+                    <div class="definition-example">windRose(mydata)
+windRose(mydata, type = "season")</div>
+                </div>
+
+                <div class="definition-card" data-terms="pollutionrose rosa inquinanti concentrazione">
+                    <div class="definition-term">🌹 pollutionRose</div>
+                    <div class="definition-text">
+                        Rosa degli inquinanti: mostra le concentrazioni di un inquinante 
+                        in funzione della direzione del vento.
+                    </div>
+                    <div class="definition-example">pollutionRose(mydata, 
+  pollutant = "pm10")</div>
+                </div>
+
+                <div class="definition-card" data-terms="polarplot polare bivariate sorgenti">
+                    <div class="definition-term">🎯 polarPlot</div>
+                    <div class="definition-text">
+                        Grafico polare bivariato: mostra le concentrazioni in funzione di 
+                        velocità E direzione del vento. Utile per identificare sorgenti.
+                    </div>
+                    <div class="definition-example">polarPlot(mydata, 
+  pollutant = "nox")</div>
+                </div>
+
+                <div class="definition-card" data-terms="calendarplot calendario giornaliero heatmap">
+                    <div class="definition-term">📅 calendarPlot</div>
+                    <div class="definition-text">
+                        Visualizza i dati come calendario: ogni cella è un giorno, 
+                        il colore indica la concentrazione.
+                    </div>
+                    <div class="definition-example">calendarPlot(mydata, 
+  pollutant = "pm10",
+  year = 2003)</div>
+                </div>
+
+                <div class="definition-card" data-terms="theilsen trend tendenza mann-kendall">
+                    <div class="definition-term">📉 TheilSen</div>
+                    <div class="definition-text">
+                        Analisi di trend con il metodo robusto Theil-Sen e test di Mann-Kendall. 
+                        Mostra se l'inquinante aumenta o diminuisce nel tempo.
+                    </div>
+                    <div class="definition-example">TheilSen(mydata, 
+  pollutant = "pm10",
+  deseason = TRUE)</div>
+                </div>
+            </div>
+
+            <h2 class="category-title">🔧 Operatori R</h2>
+            <div class="definitions-grid">
+                <div class="definition-card" data-terms="assegnazione freccia arrow assign">
+                    <div class="definition-term">← Assegnazione</div>
+                    <div class="definition-text">
+                        Operatore per assegnare un valore a una variabile. 
+                        <code>&lt;-</code> è preferito, ma <code>=</code> funziona ugualmente.
+                    </div>
+                    <div class="definition-example">x <- 10
+x = 10  # equivalente</div>
+                </div>
+
+                <div class="definition-card" data-terms="dollaro accesso colonna estrazione">
+                    <div class="definition-term">$ Accesso Colonna</div>
+                    <div class="definition-text">
+                        Operatore per accedere a una colonna di un data frame per nome.
+                    </div>
+                    <div class="definition-example">dati$pm10
+dati$date</div>
+                </div>
+
+                <div class="definition-card" data-terms="parentesi quadre indice subset">
+                    <div class="definition-term">[ ] Indicizzazione</div>
+                    <div class="definition-text">
+                        Operatore per accedere a elementi specifici. Per data frame: 
+                        [riga, colonna]. Lasciare vuoto = tutti.
+                    </div>
+                    <div class="definition-example">dati[1, ]    # prima riga
+dati[, 2]    # seconda colonna
+dati[1, 2]   # cella specifica</div>
+                </div>
+
+                <div class="definition-card" data-terms="confronto uguale diverso maggiore minore">
+                    <div class="definition-term">== != > < Confronto</div>
+                    <div class="definition-text">
+                        Operatori di confronto: == (uguale), != (diverso), 
+                        > (maggiore), < (minore), >= e <=.
+                    </div>
+                    <div class="definition-example">dati[dati$pm10 > 50, ]
+dati$pm10 == 100</div>
+                </div>
+
+                <div class="definition-card" data-terms="and or logico e o">
+                    <div class="definition-term">& | Operatori Logici</div>
+                    <div class="definition-text">
+                        <code>&</code> = AND (entrambe vere), <code>|</code> = OR (almeno una vera), 
+                        <code>!</code> = NOT (negazione).
+                    </div>
+                    <div class="definition-example">dati[dati$pm10 > 30 & dati$no2 > 40, ]
+!is.na(dati$pm10)  # non NA</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE: Examples -->
+        <div id="examples" class="page">
+            <h2 style="text-align: center; margin-bottom: 30px;">💻 Esempi Pronti all'Uso</h2>
+
+            <div class="example-section">
+                <h4>📥 Template: Importazione Dati Completa</h4>
+                <div class="code-example"><span class="comment"># ══════════════════════════════════════════════════════════
+# TEMPLATE IMPORTAZIONE DATI PER OPENAIR
+# Copia e adatta questo codice ai tuoi dati
+# ═════════════════════════════════════════════════════════</span>
+
+<span class="comment"># 1. Carica pacchetto</span>
+<span class="function">library</span>(openair)
+
+<span class="comment"># 2. Importa CSV (scegli quello adatto)</span>
+<span class="comment"># Per CSV con virgola come separatore:</span>
+dati <- <span class="function">read.csv</span>(<span class="string">"tuofile.csv"</span>)
+
+<span class="comment"># Per CSV italiano (punto e virgola, virgola decimale):</span>
+dati <- <span class="function">read.csv2</span>(<span class="string">"tuofile.csv"</span>)
+
+<span class="comment"># 3. Guarda la struttura</span>
+<span class="function">head</span>(dati)
+<span class="function">str</span>(dati)
+<span class="function">names</span>(dati)
+
+<span class="comment"># 4. Rinomina le colonne (ADATTA AI TUOI NOMI!)</span>
+<span class="function">names</span>(dati) <- <span class="function">c</span>(<span class="string">"data_orig"</span>, <span class="string">"pm10"</span>, <span class="string">"pm25"</span>, <span class="string">"no2"</span>, <span class="string">"o3"</span>, <span class="string">"ws"</span>, <span class="string">"wd"</span>)
+
+<span class="comment"># 5. Converti data (ADATTA IL FORMATO!)</span>
+<span class="comment"># Formato italiano: gg/mm/aaaa HH:MM</span>
+dati$date <- <span class="function">as.POSIXct</span>(
+    dati$data_orig, 
+    format = <span class="string">"%d/%m/%Y %H:%M"</span>, 
+    tz = <span class="string">"Europe/Rome"</span>
+)
+
+<span class="comment"># 6. Verifica</span>
+<span class="function">class</span>(dati$date)  <span class="comment"># deve essere "POSIXct"</span>
+<span class="function">head</span>(dati$date)
+
+<span class="comment"># 7. Pulisci valori impossibili</span>
+dati$pm10[dati$pm10 < <span class="number">0</span>] <- <span class="keyword">NA</span>
+dati$ws[dati$ws < <span class="number">0</span>] <- <span class="keyword">NA</span>
+dati$wd[dati$wd < <span class="number">0</span> | dati$wd > <span class="number">360</span>] <- <span class="keyword">NA</span>
+
+<span class="comment"># 8. Riepilogo</span>
+<span class="function">summary</span>(dati)
+<span class="function">summaryPlot</span>(dati)</div>
+            </div>
+
+            <div class="example-section">
+                <h4>🧭 Template: Analisi Rosa dei Venti</h4>
+                <div class="code-example"><span class="comment"># ═══════════════════════════════════════════════════════
+# ANALISI COMPLETA VENTO E INQUINANTI
+# ═══════════════════════════════════════════</span>
+
+<span class="function">library</span>(openair)
+<span class="function">data</span>(mydata)  <span class="comment"># o usa i tuoi dati</span>
+
+<span class="comment"># Rosa dei venti base</span>
+<span class="function">windRose</span>(mydata)
+
+<span class="comment"># Rosa per stagione</span>
+<span class="function">windRose</span>(mydata, type = <span class="string">"season"</span>)
+
+<span class="comment"># Rosa per anno</span>
+<span class="function">windRose</span>(mydata, type = <span class="string">"year"</span>)
+
+<span class="comment"># Rosa personalizzata</span>
+<span class="function">windRose</span>(
+    mydata,
+    ws.int = <span class="number">1</span>,                              <span class="comment"># intervallo velocità 1 m/s</span>
+    breaks = <span class="function">c</span>(<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>, <span class="number">10</span>, <span class="number">20</span>),       <span class="comment"># classi velocità</span>
+    paddle = <span class="keyword">FALSE</span>,                           <span class="comment"># barre rettangolari</span>
+    cols = <span class="string">"jet"</span>,                             <span class="comment"># scala colori</span>
+    key.position = <span class="string">"bottom"</span>                   <span class="comment"># legenda in basso</span>
+)
+
+<span class="comment"># Rosa inquinanti - da dove arriva il PM10?</span>
+<span class="function">pollutionRose</span>(mydata, pollutant = <span class="string">"pm10"</span>)
+
+<span class="comment"># Rosa inquinanti per stagione</span>
+<span class="function">pollutionRose</span>(
+    mydata, 
+    pollutant = <span class="string">"pm10"</span>,
+    type = <span class="string">"season"</span>
+)
+
+<span class="comment"># Confronto NO2 giorno/notte</span>
+<span class="function">pollutionRose</span>(
+    mydata,
+    pollutant = <span class="string">"no2"</span>,
+    type = <span class="string">"daylight"</span>
+)</div>
+            </div>
+
+            <div class="example-section">
+                <h4>🎯 Template: Identificazione Sorgenti con Polar Plot</h4>
+                <div class="code-example"><span class="comment"># ═══════════════════════════════════════════════════════════
+# POLAR PLOT PER IDENTIFICARE SORGENTI
+# ═══════════════════════════════════════════════</span>
+
+<span class="function">library</span>(openair)
+<span class="function">data</span>(mydata)
+
+<span class="comment"># Polar plot base</span>
+<span class="function">polarPlot</span>(mydata, pollutant = <span class="string">"nox"</span>)
+
+<span class="comment"># Interpretazione:
+# - Centro = calma di vento
+# - Distanza dal centro = velocità vento
+# - Angolo = direzione di provenienza
+# - Colore = concentrazione</span>
+
+<span class="comment"># Polar plot per stagione</span>
+<span class="function">polarPlot</span>(
+    mydata, 
+    pollutant = <span class="string">"pm10"</span>,
+    type = <span class="string">"season"</span>
+)
+
+<span class="comment"># Polar Annulus - variazione oraria</span>
+<span class="function">polarAnnulus</span>(
+    mydata,
+    pollutant = <span class="string">"no2"</span>,
+    period = <span class="string">"hour"</span>
+)
+<span class="comment"># L'anello mostra l'ora del giorno (00-23)</span>
+
+<span class="comment"># Polar Annulus per giorno settimana</span>
+<span class="function">polarAnnulus</span>(
+    mydata,
+    pollutant = <span class="string">"no2"</span>,
+    period = <span class="string">"weekday"</span>
+)
+
+<span class="comment"># Polar Frequency</span>
+<span class="function">polarFreq</span>(mydata, pollutant = <span class="string">"pm10"</span>)</div>
+            </div>
+
+            <div class="example-section">
+                <h4>📈 Template: Analisi Temporale Completa</h4>
+                <div class="code-example"><span class="comment"># ════════════════════════════════════════════════════════════
+# ANALISI TEMPORALE COMPLETA
+# ═══════════════════════════════════════════════════════</span>
+
+<span class="function">library</span>(openair)
+<span class="function">data</span>(mydata)
+
+<span class="comment"># Serie temporale oraria</span>
+<span class="function">timePlot</span>(mydata, pollutant = <span class="string">"pm10"</span>)
+
+<span class="comment"># Serie temporale giornaliera</span>
+<span class="function">timePlot</span>(
+    mydata, 
+    pollutant = <span class="string">"pm10"</span>,
+    avg.time = <span class="string">"day"</span>
+)
+
+<span class="comment"># Serie temporale mensile</span>
+<span class="function">timePlot</span>(
+    mydata, 
+    pollutant = <span class="string">"pm10"</span>,
+    avg.time = <span class="string">"month"</span>
+)
+
+<span class="comment"># Confronto multiplo inquinanti (normalizzato)</span>
+<span class="function">timePlot</span>(
+    mydata,
+    pollutant = <span class="function">c</span>(<span class="string">"pm10"</span>, <span class="string">"no2"</span>, <span class="string">"o3"</span>),
+    avg.time = <span class="string">"month"</span>,
+    normalise = <span class="string">"mean"</span>
+)
+
+<span class="comment"># Con linea di riferimento (limite normativo)</span>
+<span class="function">timePlot</span>(
+    mydata,
+    pollutant = <span class="string">"pm10"</span>,
+    avg.time = <span class="string">"day"</span>,
+    ref.y = <span class="function">list</span>(h = <span class="number">50</span>, lty = <span class="number">2</span>, col = <span class="string">"red"</span>)
+)
+
+<span class="comment"># Variazione ciclica completa</span>
+<span class="function">timeVariation</span>(mydata, pollutant = <span class="string">"pm10"</span>)
+<span class="comment"># Genera 4 grafici:
+# - Variazione oraria (ore 0-23)
+# - Variazione settimanale (Lun-Dom)
+# - Variazione mensile (Gen-Dic)
+# - Variazione giorno tipo per stagione</span>
+
+<span class="comment"># Calendario annuale</span>
+<span class="function">calendarPlot</span>(
+    mydata,
+    pollutant = <span class="string">"pm10"</span>,
+    year = <span class="number">2003</span>
+)
+
+<span class="comment"># Trend nel tempo</span>
+<span class="function">TheilSen</span>(
+    mydata,
+    pollutant = <span class="string">"pm10"</span>,
+    deseason = <span class="keyword">TRUE</span>  <span class="comment"># rimuove stagionalità</span>
+)</div>
+            </div>
+
+            <div class="example-section">
+                <h4>💾 Template: Esportare Grafici e Risultati</h4>
+                <div class="code-example"><span class="comment"># ═══════════════════════════════════════════════════════
+# ESPORTARE GRAFICI
+# ══════════════════════════════════════════════════════════</span>
+
+<span class="function">library</span>(openair)
+<span class="function">data</span>(mydata)
+
+<span class="comment"># --- PNG (per presentazioni, web) ---</span>
+<span class="function">png</span>(<span class="string">"rosa_venti.png"</span>, width = <span class="number">800</span>, height = <span class="number">600</span>)
+<span class="function">windRose</span>(mydata)
+<span class="function">dev.off</span>()
+
+<span class="comment"># PNG alta risoluzione (per stampa)</span>
+<span class="function">png</span>(<span class="string">"polar_hd.png"</span>, width = <span class="number">3000</span>, height = <span class="number">2400</span>, res = <span class="number">300</span>)
+<span class="function">polarPlot</span>(mydata, pollutant = <span class="string">"pm10"</span>)
+<span class="function">dev.off</span>()
+
+<span class="comment"># --- PDF (vettoriale, migliore qualità) ---</span>
+<span class="function">pdf</span>(<span class="string">"analisi_pm10.pdf"</span>, width = <span class="number">10</span>, height = <span class="number">8</span>)
+<span class="function">timePlot</span>(mydata, pollutant = <span class="string">"pm10"</span>, avg.time = <span class="string">"day"</span>)
+<span class="function">dev.off</span>()
+
+<span class="comment"># --- Più grafici in un PDF ---</span>
+<span class="function">pdf</span>(<span class="string">"report_completo.pdf"</span>, width = <span class="number">11</span>, height = <span class="number">8</span>)
+<span class="function">summaryPlot</span>(mydata)
+<span class="function">windRose</span>(mydata)
+<span class="function">polarPlot</span>(mydata, pollutant = <span class="string">"pm10"</span>)
+<span class="function">timeVariation</span>(mydata, pollutant = <span class="string">"pm10"</span>)
+<span class="function">dev.off</span>()
+
+<span class="comment"># ═══════════════════════════════════════════════════════
+# ESPORTARE DATI
+# ═══════════════════════════════════════════════════════</span>
+
+<span class="comment"># Salvare dati puliti come CSV</span>
+<span class="function">write.csv</span>(mydata, <span class="string">"dati_puliti.csv"</span>, row.names = <span class="keyword">FALSE</span>)
+
+<span class="comment"># CSV italiano (punto e virgola)</span>
+<span class="function">write.csv2</span>(mydata, <span class="string">"dati_puliti_it.csv"</span>, row.names = <span class="keyword">FALSE</span>)</div>
+            </div>
+
+            <div class="example-section">
+                <h4>📊 Quick Reference: Funzioni openair</h4>
+                <table class="reference-table">
+                    <tr>
+                        <th>Funzione</th>
+                        <th>Uso</th>
+                        <th>Esempio</th>
+                    </tr>
+                    <tr>
+                        <td><code>summaryPlot</code></td>
+                        <td>Panoramica dataset</td>
+                        <td><code>summaryPlot(mydata)</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>timePlot</code></td>
+                        <td>Serie temporale</td>
+                        <td><code>timePlot(mydata, pollutant = "pm10")</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>timeVariation</code></td>
+                        <td>Variazioni cicliche</td>
+                        <td><code>timeVariation(mydata, pollutant = "pm10")</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>windRose</code></td>
+                        <td>Rosa dei venti</td>
+                        <td><code>windRose(mydata, type = "season")</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>pollutionRose</code></td>
+                        <td>Rosa inquinanti</td>
+                        <td><code>pollutionRose(mydata, pollutant = "pm10")</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>polarPlot</code></td>
+                        <td>Polar bivariato</td>
+                        <td><code>polarPlot(mydata, pollutant = "nox")</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>polarAnnulus</code></td>
+                        <td>Polar + tempo</td>
+                        <td><code>polarAnnulus(mydata, pollutant = "no2")</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>calendarPlot</code></td>
+                        <td>Calendario</td>
+                        <td><code>calendarPlot(mydata, pollutant = "pm10", year = 2003)</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>TheilSen</code></td>
+                        <td>Analisi trend</td>
+                        <td><code>TheilSen(mydata, pollutant = "pm10")</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>scatterPlot</code></td>
+                        <td>Scatter plot</td>
+                        <td><code>scatterPlot(mydata, x = "no2", y = "pm10")</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>corPlot</code></td>
+                        <td>Matrice correlazione</td>
+                        <td><code>corPlot(mydata)</code></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- PAGE: Resources -->
+        <div id="resources" class="page">
+            <section class="resources-section">
+                <h2 style="text-align: center; margin-bottom: 10px;">📚 Risorse Utili</h2>
+                <div class="resources-grid">
+                    <div class="resource-card">
+                        <h4>📖 Documentazione openair</h4>
+                        <p><a href="https://davidcarslaw.github.io/openair/" style="color: #4facfe;">davidcarslaw.github.io/openair</a></p>
+                        <p style="margin-top: 10px;">Help in R: <code>?windRose</code></p>
+                    </div>
+                    <div class="resource-card">
+                        <h4>📊 Dataset di esempio</h4>
+                        <p>Carica con:</p>
+                        <p><code>data(mydata)</code></p>
+                        <p style="margin-top: 5px; opacity: 0.7;">Dati Londra 1998-2005</p>
+                    </div>
+                    <div class="resource-card">
+                        <h4>📥 Download R</h4>
+                        <p><a href="https://cran.r-project.org/" style="color: #4facfe;">cran.r-project.org</a></p>
+                        <p style="margin-top: 5px; opacity: 0.7;">Versione consigliata: ≥ 4.0</p>
+                    </div>
+                    <div class="resource-card">
+                        <h4>💻 Download RStudio</h4>
+                        <p><a href="https://posit.co/downloads/" style="color: #4facfe;">posit.co/downloads</a></p>
+                        <p style="margin-top: 5px; opacity: 0.7;">Versione Desktop gratuita</p>
+                    </div>
+                    <div class="resource-card">
+                        <h4>📄 Libro openair (PDF)</h4>
+                        <p>openair manual completo</p>
+                        <p><code>vignette("openair")</code></p>
+                    </div>
+                    <div class="resource-card">
+                        <h4>🆘 Troubleshooting</h4>
+                        <p><code>could not find function</code></p>
+                        <p>→ Hai caricato il pacchetto?</p>
+                        <p><code>library(openair)</code></p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="checklist">
+                <h2 style="text-align: center; margin-bottom: 20px;">🔧 Troubleshooting Rapido</h2>
+                <table class="reference-table">
+                    <tr>
+                        <th>Errore</th>
+                        <th>Causa</th>
+                        <th>Soluzione</th>
+                    </tr>
+                    <tr>
+                        <td><code>could not find function</code></td>
+                        <td>Pacchetto non caricato</td>
+                        <td><code>library(openair)</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>object not found</code></td>
+                        <td>Variabile non esiste</td>
+                        <td>Controlla nome e maiuscole</td>
+                    </tr>
+                    <tr>
+                        <td><code>cannot open file</code></td>
+                        <td>File non trovato</td>
+                        <td>Controlla <code>getwd()</code> e percorso</td>
+                    </tr>
+                    <tr>
+                        <td><code>'date' column not found</code></td>
+                        <td>Colonna non si chiama "date"</td>
+                        <td><code>names(dati)[1] <- "date"</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>should be class POSIXct</code></td>
+                        <td>Data non convertita</td>
+                        <td><code>as.POSIXct(...)</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>'ws' and 'wd' are needed</code></td>
+                        <td>Colonne vento mancanti</td>
+                        <td>Rinomina colonne in "ws" e "wd"</td>
+                    </tr>
+                    <tr>
+                        <td><code>NAs introduced by coercion</code></td>
+                        <td>Testo in colonna numerica</td>
+                        <td>Pulisci i dati prima</td>
+                    </tr>
+                    <tr>
+                        <td>Grafico vuoto</td>
+                        <td>Troppi NA</td>
+                        <td><code>colSums(is.na(dati))</code></td>
+                    </tr>
+                </table>
+            </section>
+
+            <section class="checklist">
+                <h2 style="text-align: center; margin-bottom: 20px;">✅ Checklist Fine Corso</h2>
+                <div class="checklist-item" onclick="toggleCheck(this)">
+                    <div class="checkbox"></div>
+                    <span class="item-text">So aprire RStudio e creare un progetto</span>
+                </div>
+                <div class="checklist-item" onclick="toggleCheck(this)">
+                    <div class="checkbox"></div>
+                    <span class="item-text">So creare variabili e vettori</span>
+                </div>
+                <div class="checklist-item" onclick="toggleCheck(this)">
+                    <div class="checkbox"></div>
+                    <span class="item-text">So importare dati da CSV</span>
+                </div>
+                <div class="checklist-item" onclick="toggleCheck(this)">
+                    <div class="checkbox"></div>
+                    <span class="item-text">So convertire date in formato POSIXct</span>
+                </div>
+                <div class="checklist-item" onclick="toggleCheck(this)">
+                    <div class="checkbox"></div>
+                    <span class="item-text">So rinominare colonne per openair (date, ws, wd)</span>
+                </div>
+                <div class="checklist-item" onclick="toggleCheck(this)">
+                    <div class="checkbox"></div>
+                    <span class="item-text">So gestire valori mancanti (NA)</span>
+                </div>
+                <div class="checklist-item" onclick="toggleCheck(this)">
+                    <div class="checkbox"></div>
+                    <span class="item-text">So usare windRose e pollutionRose</span>
+                </div>
+                <div class="checklist-item" onclick="toggleCheck(this)">
+                    <div class="checkbox"></div>
+                    <span class="item-text">So usare polarPlot per identificare sorgenti</span>
+                </div>
+                <div class="checklist-item" onclick="toggleCheck(this)">
+                    <div class="checkbox"></div>
+                    <span class="item-text">So creare grafici temporali con timePlot</span>
+                </div>
+                <div class="checklist-item" onclick="toggleCheck(this)">
+                    <div class="checkbox"></div>
+                    <span class="item-text">So esportare grafici in PNG o PDF</span>
+                </div>
+            </section>
+
+            <section style="margin-top: 40px; text-align: center;">
+                <h2 style="margin-bottom: 20px;">📧 Contatti e Supporto</h2>
+                <p style="opacity: 0.8; margin-bottom: 15px;">Per domande dopo il corso:</p>
+                <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+                    <div class="resource-card" style="max-width: 250px;">
+                        <h4>🌐 Stack Overflow</h4>
+                        <p>Tag: [r] [openair]</p>
+                    </div>
+                    <div class="resource-card" style="max-width: 250px;">
+                        <h4>📧 openair GitHub</h4>
+                        <p>Issues e discussioni</p>
+                    </div>
+                    <div class="resource-card" style="max-width: 250px;">
+                        <h4>📚 R-bloggers</h4>
+                        <p>Tutorial e esempi</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <footer class="footer">
+            <p>📊 Corso R, RStudio & openair - Analisi Qualità dell'Aria</p>
+            <p style="margin-top: 10px; opacity: 0.7;">Clicca sui moduli per espandere i dettagli | Doppio click sul codice per copiare</p>
+        </footer>
+    </div>
+
+    <script>
+        // Page Navigation
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById(pageId).classList.add('active');
+            event.target.classList.add('active');
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Module Expand/Collapse
+        function toggleExpand(element) {
+            element.classList.toggle('expanded');
+        }
+
+        // Checklist Toggle
+        function toggleCheck(element) {
+            element.classList.toggle('checked');
+            
+            const checklistItems = document.querySelectorAll('.checklist-item');
+            const states = [];
+            checklistItems.forEach((item, index) => {
+                states.push(item.classList.contains('checked'));
+            });
+            localStorage.setItem('checklistStates', JSON.stringify(states));
+        }
+
+        // Load checklist states
+        function loadChecklistStates() {
+            const states = JSON.parse(localStorage.getItem('checklistStates'));
+            if (states) {
+                const checklistItems = document.querySelectorAll('.checklist-item');
+                checklistItems.forEach((item, index) => {
+                    if (states[index]) {
+                        item.classList.add('checked');
+                    }
+                });
+            }
+        }
+
+        // Search Definitions
+        function searchDefinitions() {
+            const searchTerm = document.getElementById('searchDef').value.toLowerCase();
+            const cards = document.querySelectorAll('.definition-card');
+            
+            cards.forEach(card => {
+                const terms = card.getAttribute('data-terms') || '';
+                const title = card.querySelector('.definition-term').textContent.toLowerCase();
+                const text = card.querySelector('.definition-text').textContent.toLowerCase();
+                
+                if (terms.includes(searchTerm) || title.includes(searchTerm) || text.includes(searchTerm)) {
+                    card.style.display = 'block';
+                    card.style.animation = 'fadeIn 0.3s ease';
+                } else {
+                    card.style.display = searchTerm === '' ? 'block' : 'none';
+                }
+            });
+        }
+
+        // Scroll to module
+        function scrollToModule(num) {
+            showPage('modules');
+            setTimeout(() => {
+                document.getElementById('module' + num).scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+                const moduleContent = document.querySelector('#module' + num + ' .module-content');
+                moduleContent.classList.add('expanded');
+            }, 100);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadChecklistStates();
+            
+            setTimeout(() => {
+                const firstModule = document.querySelector('.module-content');
+                if (firstModule) {
+                    firstModule.classList.add('expanded');
+                }
+            }, 500);
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key >= '1' && e.key <= '5' && !e.ctrlKey && !e.altKey) {
+                const activeElement = document.activeElement;
+                if (activeElement.tagName !== 'INPUT') {
+                    scrollToModule(parseInt(e.key));
+                }
+            }
+            
+            if (e.key === 'Escape') {
+                const searchInput = document.getElementById('searchDef');
+                if (searchInput) {
+                    searchInput.value = '';
+                    searchDefinitions();
+                }
+            }
+        });
+
+        // Copy code on double click
+        document.querySelectorAll('.code-example').forEach(block => {
+            block.addEventListener('dblclick', function() {
+                const text = this.textContent;
+                navigator.clipboard.writeText(text).then(() => {
+                    const feedback = document.createElement('div');
+                    feedback.textContent = '📋 Codice copiato!';
+                    feedback.style.cssText = `
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        background: linear-gradient(135deg, #43e97b, #38f9d7);
+                        color: #1a1a2e;
+                        padding: 15px 25px;
+                        border-radius: 10px;
+                        font-weight: bold;
+                        z-index: 1000;
+                        animation: fadeIn 0.3s ease;
+                        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                    `;
+                    document.body.appendChild(feedback);
+                    setTimeout(() => feedback.remove(), 2000);
+                });
+            });
+        });
+
+        // Scroll animation for cards
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.definition-card, .skill-card, .resource-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>
